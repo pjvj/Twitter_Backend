@@ -1,22 +1,3 @@
-<!--
-{% extends 'api/base.html' %}
-
-{% block content %}
-  <h2>Homepage</h2>
-  <p>Hello {{ user.username }}!</p>
-  <form action="." method="post">
-    <label for="tweet">Your Tweet: </label>
-    <input id="tweet" type="text" name="createTweet" value="Tweet Here">
-    <input type="submit" value="Create">
-  </form>
-
-  <form action='.' method='post'>
-  <button type="button" name="addTweet">Create Tweet</button>
-  </form>
-
-{% endblock %} -->
-
-
 {% extends "api/base.html"  %}
 
 {% block content %}
@@ -25,7 +6,7 @@
         <div class="section-inner clearfix">
 
         <p>Welcome {{ user.username }} !</p>
-        <form action="." method="post">
+        <form action="" method="post">
           <label for="tweet">Your Tweet: </label>
           <input id="tweet" type="text" name="createTweet" value="Tweet Here">
           <input type="submit" value="Create">
@@ -33,7 +14,7 @@
 
 
 
-        <p><a href="{% url 'twitter_login' %}">Logout</a></p>
+        <p><a href="{% url 'twitter_logout' %}">Logout</a></p>
 
         </div>
     </div>

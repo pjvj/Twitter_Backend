@@ -46,23 +46,9 @@ from .models import UserInfo
 from django import forms
 class UserRegistrationForm(forms.Form):
 
-    name = forms.CharField(
-        #required = True,
-        #label = 'name',
-        max_length = 50
-    )
-    username = forms.CharField(
-        #required = True,
-        #label = 'username',
-        max_length = 50,
-
-    )
-    password = forms.CharField(
-        #required = True,
-        #label = 'password',
-        max_length = 50,
-        widget = forms.PasswordInput()
-    )
+    name = forms.CharField(max_length = 50)
+    username = forms.CharField(max_length = 50)
+    password = forms.CharField(max_length = 50,widget = forms.PasswordInput())
 
     def save(self, commit=False):
         user = UserInfo.objects.create(
@@ -71,3 +57,4 @@ class UserRegistrationForm(forms.Form):
              password=self.cleaned_data['password']
         )
         return user
+    
