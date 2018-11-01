@@ -1,0 +1,43 @@
+{% extends "api/base.html"  %}
+
+{% block content %}
+
+    <div class="content">
+        <div class="section-inner clearfix">
+
+         <h2>Welcome {{ currentuser }} ! </h2>
+
+        <form action="" method="">
+          <label for="tweet"> Choose to follow/unfollow users: </label>
+            {% if users %}
+            <table>
+                {% for user in users %}
+                <tr>
+                  <td>{{ user }}</td>
+                  <td>
+                    
+                    
+                    {% if user in following %}
+                    <p><a href="{% url 'update_followers' user '1' %} ">
+                    UnFollow
+                    </a></p>
+                    {% else %}
+                    <p><a href="{% url 'update_followers' user '2' %} ">
+                    Follow
+                    </a></p>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% endif %}
+          
+        </form>
+        
+        
+        <p><a href="{% url 'twitter_logout' %}">Logout</a></p>
+
+        </div>
+    </div>
+
+{% endblock %}
