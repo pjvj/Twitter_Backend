@@ -103,6 +103,10 @@ def twitter_logout(request):
     return render(request, 'api/logout.html')
 
 
+def delete_post(request):
+     username = request.session['logged_in']
+
+
 def create_post(request):
     username = request.session['logged_in']
     contact = UserInfo.objects.get(username=username)
@@ -112,7 +116,9 @@ def create_post(request):
 def users_list(request):
     userslist = UserInfo.objects.all()
     usernames=[]
-    currentuser=request.session['logged_in']
+    #currentuser=request.session['logged_in']
+    cuser=request.session['logged_in']
+    currentuser=UserInfo.objects.get(username=cuser)
     followings=None
     try:
         followings = Relationship.objects.filter(from_person=currentuser)
@@ -124,16 +130,9 @@ def users_list(request):
         for f in followings:
             following.append(f.to_person)  
     for users in userslist:
-        if users.username!=currentuser:
-            usernames.append(users.username)
-    return render(request, 'api/users_list.html', {'users': usernames ,'currentuser':currentuser , 'following':following})
-
-
-def remove_follow(request,username):
-    cuser=request.session['logged_in']
-    currentuser=UserInfo.objects.get(username=cuser)
-    user = UserInfo.objects.get(username=username)
-    Relationship.objects.filter(from_person=currentuser,to_person=user).delete()
+        if users.username!=currentuser.username:
+            usernames.append(users)
+    return render(request, 'api/users_list.html', {'users': usernames ,'currentuser':cuser , 'following':following})
 
 
 def update_followers(request, username, fid):
@@ -144,11 +143,17 @@ def update_followers(request, username, fid):
     print(username)
     print(fid)
     if fid!=1 :
-        print("chala save")
-        Relationship.objects.create(from_person=currentuser,to_person=user)
+        if Relationship.objects.filter(from_person=currentuser,to_person=user):
+            print("already following")
+        else:
+            print("chala save")
+            Relationship.objects.create(from_person=currentuser,to_person=user)
     else:
-        print("chala del")
-        Relationship.objects.filter(from_person=currentuser,to_person=user).delete()
+        if Relationship.objects.filter(from_person=currentuser,to_person=user):
+            print("chala del")
+            Relationship.objects.filter(from_person=currentuser,to_person=user).delete()
+        else:
+            print("You dont follow him/her")
     userslist = UserInfo.objects.all()
     usernames=[]
     followings=None
@@ -161,12 +166,17 @@ def update_followers(request, username, fid):
     if followings:
         #print("aaya hu m followings m")
         for f in followings:
-            print(f.from_person)
-            print(f.to_person)
+            print(f.from_person.username)
+            print(f.to_person.username)
             following.append(f.to_person)  
+        userslist.remove(currentuser)
+        for users in userslist:
+            print(users.username)
+    '''
     for users in userslist:
-        if currentuser!=users.username:
-            #print(users.username)
-            usernames.append(users.username)
-    return render(request,'api/users_list.html',{'users': usernames ,'currentuser':currentuser.username , 'following':following})
+        if currentuser.username!=users.username:
+            print(users.username)
+            usernames.append(users)
+    '''
+    return render(request,'api/users_list.html',{'users': userslist ,'currentuser':currentuser.username , 'following':following})
     

@@ -13,16 +13,16 @@
             <table>
                 {% for user in users %}
                 <tr>
-                  <td>{{ user }}</td>
+                  <td>{{ user.username }}</td>
                   <td>
                     
                     
                     {% if user in following %}
-                    <p><a href="{% url 'update_followers' user '1' %} ">
+                    <p><a href="{% url 'update_followers' user.username '1' %} ">
                     UnFollow
                     </a></p>
                     {% else %}
-                    <p><a href="{% url 'update_followers' user '2' %} ">
+                    <p><a href="{% url 'update_followers' user.username '2' %} ">
                     Follow
                     </a></p>
                     {% endif %}
