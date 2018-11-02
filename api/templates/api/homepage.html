@@ -7,18 +7,44 @@
 
         <h2>Welcome {{ user.username }} !</h2>
 
-        <form action="{% url 'create_post' %}" method="post">
+        <form action="" method="">
+          <label for="tweet"> Recent posts: </label>
+            {% if allposts %}
+            <table>
+                {% for posts in allposts %}
+                <tr>
+                  <td>{{ posts.title }}</td>
+                  {% if posts in myposts %}
+                    <td>
+                    
+                    <a href="{% url 'delete_post' posts.pk %} ">
+                    Delete
+                    </a>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </table>
+            {% endif %}
+          
+        </form>
+
+        <form action="" method="post">
           <label for="tweet">Create new Tweet: </label>
-          <input id="tweet" type="text" name="createTweet" value="Hi">
-          <input type="submit" value="Create">
+          {% csrf_token %}
+            <table>
+                {{ form.as_table }}
+                <tr>
+                    <td></td>
+                    <td><input type="submit" value="Create"></td>
+                </tr>
+            </table>
         </form> 
 
         <form action="{% url 'users_list' %}" method="">
           <label for="tweet"> Choose to follow/unfollow users: </label>
           <input type="submit" value="Choose_Users">
         </form>
-
-        <h3><a href ="{% url 'users_list' %}">Follow</a></h3>
         <p><a href="{% url 'twitter_logout' %}">Logout</a></p>
 
         </div>

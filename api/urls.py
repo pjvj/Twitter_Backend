@@ -11,6 +11,7 @@ urlpatterns = {
   url(r'^users_list/$',views.users_list, name='users_list'),
   url(r'^create_post/$',views.create_post, name='create_post'),
   url(r'^(?P<username>[a-z0-9-]+)/(?P<fid>\d+)/$', views.update_followers, name='update_followers'),
+  url(r'^(?P<pid>\d+)/$', views.delete_post, name='delete_post'),
 }
 
 urlpatterns = format_suffix_patterns(urlpatterns)

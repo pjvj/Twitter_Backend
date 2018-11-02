@@ -1,4 +1,5 @@
 from .models import UserInfo
+from .models import Posts
 from django import forms
 
 
@@ -16,7 +17,9 @@ class UserRegistrationForm(forms.Form):
              password=self.cleaned_data['password']
         )
         return user
-    
+class PostForm(forms.Form):
+    title =  forms.CharField(max_length = 100)
+    content = forms.CharField(widget=forms.Textarea)   
 #class UsersToFollow(forms.Form):
     #users = forms.ModelMultipleChoiceField(queryset=UserInfo.objects.all()['username'])
     

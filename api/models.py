@@ -14,10 +14,10 @@ class UserInfo(models.Model):
 
     
 class Posts(models.Model):
-	content= models.TextField(max_length=150)
-	title = models.CharField(max_length=200)
-	pub_date = models.DateTimeField(auto_now_add=True)
-	username = models.ForeignKey(UserInfo)
+	content= models.TextField()
+	title = models.CharField(max_length=100)
+	#pub_date = models.DateTimeField(auto_now_add=True)
+	author = models.ForeignKey(UserInfo)
 
 
 class Relationship(models.Model):

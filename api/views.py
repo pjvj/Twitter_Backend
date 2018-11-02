@@ -15,9 +15,11 @@ from django.http import Http404
 from django.http import HttpResponse
 from rest_framework import generics
 from .models import UserInfo
+from .models import Posts
 from .models import Relationship
 from .serializers import UserInfoSerializer
 from .forms import UserRegistrationForm
+from .forms import PostForm
 #from django.views.decorators.clickjacking import xframe_options_exempt
 from django.template import context
 
@@ -51,10 +53,13 @@ def twitter_register(request):
 #Logining the users
 def twitter_login(request):
     #check if the session already exists
+    postform=PostForm()
+    allposts = Posts.objects.all()
     if request.session.has_key('logged_in'):
-       username = request.session['logged_in']
-       contact = UserInfo.objects.get(username=username)    #render to the homepage of the respected user whose
-       return render(request, 'api/homepage.html',{'user':contact}) #session was previously saved
+        username = request.session['logged_in']
+        contact = UserInfo.objects.get(username=username)    #render to the homepage of the respected user whose
+        myposts = Posts.objects.filter(author=contact) 
+        return render(request,'api/homepage.html',{'user':contact,'form':postform, 'myposts':myposts,'allposts':allposts})#session was previously saved
 
     #fresh login if no session exists in cookies storage  
     if request.method == 'POST':
@@ -63,7 +68,8 @@ def twitter_login(request):
         contact = UserInfo.objects.get(username=username,password=password)
         if contact:                                             #if username ans password exists
             request.session['logged_in'] = username             #save username as session
-            return render(request, 'api/homepage.html',{'user':contact})   #and redirect to its homepage
+            myposts = Posts.objects.filter(author=contact) 
+            return render(request,'api/homepage.html',{'user':contact,'form':postform, 'myposts':myposts,'allposts':allposts})   #and redirect to its homepage
         else:
             messages.error(request, 'Error wrong username/password') #if credentials doesn't match
             form = AuthenticationForm()                             #creates fresh login form
@@ -75,19 +81,26 @@ def twitter_login(request):
 
 #redirecting users to their home pages after login
 def twitter_home(request):
+    if request.method == 'POST':
+        return redirect(create_post(request))
+    postform=PostForm()   
+    allposts = Posts.objects.all()
     #check if the session already exists
     if request.session.has_key('logged_in'):
-       username = request.session['logged_in']
-       contact = UserInfo.objects.get(username=username)            
-       print("again",username)                     
+        username = request.session['logged_in']
+        contact = UserInfo.objects.get(username=username)
+        myposts = Posts.objects.filter(author=contact) 
+
+        #print("again",username)                     
        #render to the homepage of the respected user whose session was previously saved
-       return render(request, 'api/homepage.html',{'user':contact})
+        
+        return render(request,'api/homepage.html',{'user':contact,'form':postform, 'myposts':myposts,'allposts':allposts})
 
     else:
         form = AuthenticationForm()              #A fresh login form is created and rendered on the login page
         return render(request, 'api/login.html',{'form':form})
     #render to the homepage of the respected user who just logged in
-    return render(request, 'api/homepage.html',{'user':contact})
+    return render(request,'api/homepage.html',{'user':contact,'form':postform, 'myposts':myposts,'allposts':allposts})
 
 #logout the user from the account
 def twitter_logout(request):
@@ -103,14 +116,6 @@ def twitter_logout(request):
     return render(request, 'api/logout.html')
 
 
-def delete_post(request):
-     username = request.session['logged_in']
-
-
-def create_post(request):
-    username = request.session['logged_in']
-    contact = UserInfo.objects.get(username=username)
-    
 
 # view function to display a list of all users...
 def users_list(request):
@@ -142,7 +147,7 @@ def update_followers(request, username, fid):
     user = UserInfo.objects.get(username=username)
     print(username)
     print(fid)
-    if fid!=1 :
+    if fid==2 :
         if Relationship.objects.filter(from_person=currentuser,to_person=user):
             print("already following")
         else:
@@ -161,7 +166,7 @@ def update_followers(request, username, fid):
         followings = Relationship.objects.filter(from_person=currentuser)
     except Exception as e:
         pass
-    #followings = Relationship.objects.filter(from_person=currentuser)
+    
     following=[]
     if followings:
         #print("aaya hu m followings m")
@@ -169,14 +174,37 @@ def update_followers(request, username, fid):
             print(f.from_person.username)
             print(f.to_person.username)
             following.append(f.to_person)  
-        userslist.remove(currentuser)
-        for users in userslist:
-            print(users.username)
-    '''
+    
     for users in userslist:
         if currentuser.username!=users.username:
             print(users.username)
             usernames.append(users)
-    '''
+    
     return render(request,'api/users_list.html',{'users': userslist ,'currentuser':currentuser.username , 'following':following})
     
+def delete_post(request,pid):
+    username = request.session['logged_in']
+    contact = UserInfo.objects.get(username=username)
+    print(Posts.objects.filter(pk=pid))
+    Posts.objects.filter(pk=pid).delete()
+    return render(request,'api/homepage.html',{'user':contact,'form':postform, 'myposts':myposts,'allposts':allposts})
+
+
+def create_post(request):
+    username = request.session['logged_in']
+    contact = UserInfo.objects.get(username=username)
+    postform = PostForm()
+    myposts = Posts.objects.filter(author=contact)    
+    allposts = Posts.objects.all()
+    print(allposts)
+    print(myposts)
+    if request.method == 'POST':
+        print('post m aaya to h')
+        title = request.POST.get('title')
+        content = request.POST.get('content')
+        print(title,content)
+        #author = UserInfo.objects.filter(username=username)
+        Posts.objects.create(title=title,content=content,author=contact) #It is saved in the database otherwise
+        #messages.success(request, 'Posted successfully') #and a success msg is generated
+
+    return render(request,'api/homepage.html',{'user':contact,'form':postform, 'myposts':myposts,'allposts':allposts})
